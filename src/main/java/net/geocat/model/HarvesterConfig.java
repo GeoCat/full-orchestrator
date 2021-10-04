@@ -47,6 +47,8 @@ public class HarvesterConfig {
     public Boolean doNotSort;
 
 
+    public Boolean executeLinkChecker;
+
     // if numberOfRecordsPerRequest is not specified, use this
     public static int DEFAULT_NRECORDS = 20;
 
@@ -150,5 +152,13 @@ public class HarvesterConfig {
 
     public void setNumberOfRecordsPerRequest(int numberOfRecordsPerRequest) {
         this.numberOfRecordsPerRequest = numberOfRecordsPerRequest;
+    }
+
+    public Boolean getExecuteLinkChecker() {
+        return executeLinkChecker;
+    }
+
+    public void setExecuteLinkChecker(Boolean executeLinkChecker) {
+        this.executeLinkChecker = executeLinkChecker;
     }
 }

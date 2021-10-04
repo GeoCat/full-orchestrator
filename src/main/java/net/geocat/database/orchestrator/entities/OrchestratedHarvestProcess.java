@@ -26,6 +26,9 @@ public class OrchestratedHarvestProcess {
     @Enumerated(EnumType.STRING)
     private OrchestratedHarvestProcessState state;
 
+    @Column
+    private Boolean executeLinkChecker;
+
     //---
 
     public String getJobId() {
@@ -66,6 +69,14 @@ public class OrchestratedHarvestProcess {
 
     public void setState(OrchestratedHarvestProcessState state) {
         this.state = state;
+    }
+
+    public Boolean getExecuteLinkChecker() {
+        return executeLinkChecker;
+    }
+
+    public void setExecuteLinkChecker(Boolean executeLinkChecker) {
+        this.executeLinkChecker = executeLinkChecker;
     }
 
     //---

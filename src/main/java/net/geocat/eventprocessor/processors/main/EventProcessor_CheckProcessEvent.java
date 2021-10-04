@@ -99,8 +99,13 @@ public class EventProcessor_CheckProcessEvent extends BaseEventProcessor<CheckPr
             //throw new Exception("dont know how to run injester");
             process.setState(OrchestratedHarvestProcessState.COMPLETE);
             orchestratedHarvestProcessRepo.save(process);
-        }
-        else {
+        } else if (ingester_state.equals("ERROR")) {
+            process.setState(OrchestratedHarvestProcessState.ERROR);
+            orchestratedHarvestProcessRepo.save(process);
+        } else if (ingester_state.equals("USERABORT")) {
+            process.setState(OrchestratedHarvestProcessState.USERABORT);
+            orchestratedHarvestProcessRepo.save(process);
+        } else {
             // nothing to do right now (wait longer)
             // TODO: reporting
         }
@@ -121,8 +126,13 @@ public class EventProcessor_CheckProcessEvent extends BaseEventProcessor<CheckPr
             process.setInjectJobId(response.getProcessID());
             process.setState(OrchestratedHarvestProcessState.INGESTING);
             orchestratedHarvestProcessRepo.save(process);
-        }
-        else {
+        } else if (linkcheck_state.equals("ERROR")) {
+            process.setState(OrchestratedHarvestProcessState.ERROR);
+            orchestratedHarvestProcessRepo.save(process);
+        } else if (linkcheck_state.equals("USERABORT")) {
+            process.setState(OrchestratedHarvestProcessState.USERABORT);
+            orchestratedHarvestProcessRepo.save(process);
+        } else {
             // nothing to do right now (wait longer)
             // TODO: reporting
         }
@@ -136,13 +146,27 @@ public class EventProcessor_CheckProcessEvent extends BaseEventProcessor<CheckPr
             //process.setState(OrchestratedHarvestProcessState.LINKCHECKING);
             //orchestratedHarvestProcessRepo.save(process);
 
-            //transition to linkchecker
-            HarvestStartResponse response = linkCheckService.startLinkCheck(process.getHarvesterJobId());
-            process.setLinkCheckJobId(response.getProcessID());
-            process.setState(OrchestratedHarvestProcessState.LINKCHECKING);
+            if (process.getExecuteLinkChecker()) {
+                //transition to linkchecker
+                HarvestStartResponse response = linkCheckService.startLinkCheck(process.getHarvesterJobId());
+                process.setLinkCheckJobId(response.getProcessID());
+                process.setState(OrchestratedHarvestProcessState.LINKCHECKING);
+                orchestratedHarvestProcessRepo.save(process);
+            } else {
+                //transition to ingest
+                HarvestStartResponse response = ingesterService.startIngest(process.getHarvesterJobId());
+                process.setInjectJobId(response.getProcessID());
+                process.setState(OrchestratedHarvestProcessState.INGESTING);
+                orchestratedHarvestProcessRepo.save(process);
+            }
+
+        } else if (harvest_state.equals("ERROR")) {
+            process.setState(OrchestratedHarvestProcessState.ERROR);
             orchestratedHarvestProcessRepo.save(process);
-        }
-        else {
+        } else if (harvest_state.equals("USERABORT")) {
+            process.setState(OrchestratedHarvestProcessState.USERABORT);
+            orchestratedHarvestProcessRepo.save(process);
+        } else {
             // nothing to do right now (wait longer)
             // TODO: reporting
         }

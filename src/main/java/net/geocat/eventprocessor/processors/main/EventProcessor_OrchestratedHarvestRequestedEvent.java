@@ -53,6 +53,9 @@ public class EventProcessor_OrchestratedHarvestRequestedEvent extends BaseEventP
         try {
             lock.lock();
             job = orchestratedHarvestService.createOrchestratedHarvestProcess(processID);
+            job.setExecuteLinkChecker(getInitiatingEvent().getHarvesterConfig().getExecuteLinkChecker());
+            // Set to null to avoid sending it to the harvester component
+            getInitiatingEvent().getHarvesterConfig().setExecuteLinkChecker(null);
             HarvestStartResponse harvestStartResponse = harvesterService.startHarvest(getInitiatingEvent().getHarvesterConfig());
             job.setHarvesterJobId(harvestStartResponse.getProcessID());
             orchestratedHarvestProcessRepo.save(job);
