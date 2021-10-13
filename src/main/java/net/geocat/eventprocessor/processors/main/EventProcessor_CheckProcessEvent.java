@@ -25,6 +25,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.locks.Lock;
 
 
@@ -65,23 +66,28 @@ public class EventProcessor_CheckProcessEvent extends BaseEventProcessor<CheckPr
         Lock lock = processLockingService.getLock(processID);
         try {
             lock.lock();
-            OrchestratedHarvestProcess process = orchestratedHarvestProcessRepo.findById(processID).get();
-            switch(process.getState()){
-                case ERROR:
-                case USERABORT:
-                case COMPLETE:
+            Optional<OrchestratedHarvestProcess> processOptional = orchestratedHarvestProcessRepo.findById(processID);
+
+            if (processOptional.isPresent()) {
+                OrchestratedHarvestProcess process = processOptional.get();
+
+                switch(process.getState()){
+                    case ERROR:
+                    case USERABORT:
+                    case COMPLETE:
                         break; // do nothing - process is finished (this should not happen - this message shouldnt have been generated...)
-                case CREATED:
+                    case CREATED:
                         break; // shouldn't happen - first state should be harvesting (likely got the ping a bit too eary - HarvestRequestedEvent will handle this
-                case HAVESTING:
-                    handle_HAVESTING(process);
-                    break;
-                case LINKCHECKING:
-                    handle_LINKCHECKING(process);
-                    break;
-                case INGESTING:
-                    handle_INGESTING(process);
-                    break;
+                    case HAVESTING:
+                        handle_HAVESTING(process);
+                        break;
+                    case LINKCHECKING:
+                        handle_LINKCHECKING(process);
+                        break;
+                    case INGESTING:
+                        handle_INGESTING(process);
+                        break;
+                }
             }
         }
         finally {

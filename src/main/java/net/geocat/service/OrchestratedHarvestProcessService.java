@@ -8,6 +8,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
+import java.util.Optional;
+
 @Component
 @Scope("prototype")
 public class OrchestratedHarvestProcessService {
@@ -20,9 +22,16 @@ public class OrchestratedHarvestProcessService {
     }
 
     public OrchestratedHarvestProcess updateLinkCheckJobStateInDB(String guid, OrchestratedHarvestProcessState state) {
-        OrchestratedHarvestProcess job = orchestratedHarvestProcessRepo.findById(guid).get();
-        job.setState(state);
-        return orchestratedHarvestProcessRepo.save(job);
+        Optional<OrchestratedHarvestProcess> jobOptional = orchestratedHarvestProcessRepo.findById(guid);
+
+        if (jobOptional.isPresent()) {
+            OrchestratedHarvestProcess job = jobOptional.get();
+            job.setState(state);
+
+            return orchestratedHarvestProcessRepo.save(job);
+        } else {
+            return null;
+        }
     }
 
 
