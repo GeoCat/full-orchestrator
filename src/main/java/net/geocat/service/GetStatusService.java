@@ -36,6 +36,7 @@ package net.geocat.service;
 import net.geocat.database.orchestrator.entities.LogbackLoggingEvent;
 import net.geocat.database.orchestrator.entities.LogbackLoggingEventException;
 import net.geocat.database.orchestrator.entities.OrchestratedHarvestProcess;
+import net.geocat.database.orchestrator.entities.OrchestratedHarvestProcessState;
 import net.geocat.database.orchestrator.repos.LogbackLoggingEventExceptionRepo;
 import net.geocat.database.orchestrator.repos.LogbackLoggingEventRepo;
 import net.geocat.database.orchestrator.repos.OrchestratedHarvestProcessRepo;
@@ -54,6 +55,7 @@ import org.springframework.util.StringUtils;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Component
@@ -79,28 +81,38 @@ public class GetStatusService {
     IngesterService ingesterService;
 
     public OrchestratedHarvestProcessStatus getStatus(String processID)  throws Exception {
-        OrchestratedHarvestProcess job = orchestratedHarvestProcessRepo.findById(processID).get();
+        Optional<OrchestratedHarvestProcess> jobOptional = orchestratedHarvestProcessRepo.findById(processID);
 
-        OrchestratedHarvestProcessStatus result = new OrchestratedHarvestProcessStatus(processID, job.getState());
+        if (jobOptional.isPresent()) {
+            OrchestratedHarvestProcess job = jobOptional.get();
 
-        if (!StringUtils.isEmpty(job.getHarvesterJobId())) {
-            HarvestStatus harvestState = harvesterService.getHarvestState(job.getHarvesterJobId());
-            result.setHarvestStatus(harvestState);
+            OrchestratedHarvestProcessStatus result = new OrchestratedHarvestProcessStatus(processID, job.getState());
+
+            if (!StringUtils.isEmpty(job.getHarvesterJobId())) {
+                HarvestStatus harvestState = harvesterService.getHarvestState(job.getHarvesterJobId());
+                result.setHarvestStatus(harvestState);
+            }
+
+            if (!StringUtils.isEmpty(job.getLinkCheckJobId())) {
+                LinkCheckStatus linkCheckState = linkCheckService.getLinkCheckState(job.getLinkCheckJobId());
+                result.setLinkCheckStatus(linkCheckState);
+            }
+
+            if (!StringUtils.isEmpty(job.getInjectJobId())) {
+                IngestStatus ingestState = ingesterService.getIngestState(job.getInjectJobId());
+                result.setIngestStatus(ingestState);
+
+            }
+
+            setupErrorMessages(result);
+            return result;
+        } else {
+            OrchestratedHarvestProcessStatus result = new OrchestratedHarvestProcessStatus(processID, null);
+            result.setOrchestratedHarvestProcessState(OrchestratedHarvestProcessState.ERROR);
+            result.errorMessage.add(String.format("Process id '%s' not found", processID));
+
+            return result;
         }
-
-        if (!StringUtils.isEmpty(job.getLinkCheckJobId())) {
-            LinkCheckStatus linkCheckState = linkCheckService.getLinkCheckState(job.getLinkCheckJobId());
-            result.setLinkCheckStatus(linkCheckState);
-        }
-
-        if (!StringUtils.isEmpty(job.getInjectJobId())) {
-            IngestStatus ingestState = ingesterService.getIngestState(job.getInjectJobId());
-            result.setIngestStatus(ingestState);
-
-        }
-
-        setupErrorMessages(result);
-        return result;
     }
 
     private void setupErrorMessages(OrchestratedHarvestProcessStatus result) {
