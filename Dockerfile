@@ -22,6 +22,8 @@ RUN java -Djarmode=layertools -jar full-orchestrator.jar extract
 FROM eclipse-temurin:8-jre
 
 LABEL vendor="GeoCat B.V."
+LABEL org.opencontainers.image.source https://github.com/GeoCat/full-orchestrator
+
 
 
 # Check the file application.properties for a description of the environment variables that can be customized.
