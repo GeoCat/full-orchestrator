@@ -57,8 +57,7 @@ job("Build, test and install full-orchestrator artifacts") {
         env["GEOCAT_DOCKER_REGISTRY_URL"] = "docker-registry.geocat.net:5000"
         env["GEOCAT_DOCKER_REGISTRY_USER"] = Params("geocat_docker_registry_user")
         env["GEOCAT_DOCKER_REGISTRY_PASSWORD"] = Secrets("geocat_docker_registry_password")
-        env["GITHUB_REGISTRY_USERNAME"] = Params("github_registry_username")
-        env["GITHUB_REGISTRY_PAT"] = Secrets("github_registry_pat")
+
 
         shellScript {
             content = """
@@ -69,9 +68,6 @@ job("Build, test and install full-orchestrator artifacts") {
                 
                 crane copy geocat.registry.jetbrains.space/p/jrc-inspire-portal/docker/full-orchestrator:${'$'}BRANCH-${'$'}JB_SPACE_EXECUTION_NUMBER ${'$'}GEOCAT_DOCKER_REGISTRY_URL/jrc-inspire-portal/full-orchestrator:${'$'}BRANCH-${'$'}JB_SPACE_EXECUTION_NUMBER
                 crane copy geocat.registry.jetbrains.space/p/jrc-inspire-portal/docker/full-orchestrator:${'$'}BRANCH-${'$'}JB_SPACE_EXECUTION_NUMBER ${'$'}GEOCAT_DOCKER_REGISTRY_URL/jrc-inspire-portal/full-orchestrator:${'$'}BRANCH
-
-				crane copy geocat.registry.jetbrains.space/p/jrc-inspire-portal/docker/full-orchestrator:${'$'}BRANCH-${'$'}JB_SPACE_EXECUTION_NUMBER ghcr.io/geocat/full-orchestrator:${'$'}BRANCH-${'$'}JB_SPACE_EXECUTION_NUMBER
-                crane copy geocat.registry.jetbrains.space/p/jrc-inspire-portal/docker/full-orchestrator:${'$'}BRANCH-${'$'}JB_SPACE_EXECUTION_NUMBER ghcr.io/geocat/full-orchestrator:${'$'}BRANCH            
             """
         }
     }
