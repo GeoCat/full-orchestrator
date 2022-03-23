@@ -75,6 +75,20 @@ public class HarvesterService {
         return result;
     }
 
+    // call the harvest remote service and return the processID
+    public String getLastCompletedHarvestJobIdByLongTermTag(HarvesterConfig harvestConfig) throws  Exception {
+
+        String url = harvesterAPIURL+"/getLastCompletedHarvestJobIdByLongTermTag/" + harvestConfig.getLongTermTag();
+        HttpResult httpResponse = sendJSON("GET",url, null);
+        String result = httpResponse.getData() == null ? "" : new String(httpResponse.getData());
+        if (httpResponse.isErrorOccurred() || (httpResponse.getHttpCode() != 200))
+            throw new Exception("couldnt query the harvest job id process - "+result);
+
+        // The identifier is returned between quotes
+        return result.replace("\"", "");
+    }
+
+
     public HttpResult sendJSON(String verb, String url, String json) throws  Exception {
         HttpResult result = basicHTTPRetriever.retrieveJSON(verb, url, json, null,null);
         return result;

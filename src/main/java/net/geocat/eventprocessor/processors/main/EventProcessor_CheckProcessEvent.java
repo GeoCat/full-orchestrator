@@ -145,37 +145,47 @@ public class EventProcessor_CheckProcessEvent extends BaseEventProcessor<CheckPr
         //handle ERROR, USERABORT
     }
 
-    private void handle_HAVESTING(OrchestratedHarvestProcess process) throws Exception {
-        HarvestStatus status = harvesterService.getHarvestState(process.getHarvesterJobId());
-        String harvest_state = status.state;
-        if (harvest_state.equals("COMPLETE")) {
-            //process.setState(OrchestratedHarvestProcessState.LINKCHECKING);
-            //orchestratedHarvestProcessRepo.save(process);
-
-            if (process.getExecuteLinkChecker()) {
-                //transition to linkchecker
-                HarvestStartResponse response = linkCheckService.startLinkCheck(process.getHarvesterJobId());
-                process.setLinkCheckJobId(response.getProcessID());
-                process.setState(OrchestratedHarvestProcessState.LINKCHECKING);
-                orchestratedHarvestProcessRepo.save(process);
-            } else {
-                //transition to ingest
-                HarvestStartResponse response = ingesterService.startIngest(process.getHarvesterJobId());
-                process.setInjectJobId(response.getProcessID());
-                process.setState(OrchestratedHarvestProcessState.INGESTING);
-                orchestratedHarvestProcessRepo.save(process);
-            }
-
-        } else if (harvest_state.equals("ERROR")) {
-            process.setState(OrchestratedHarvestProcessState.ERROR);
-            orchestratedHarvestProcessRepo.save(process);
-        } else if (harvest_state.equals("USERABORT")) {
-            process.setState(OrchestratedHarvestProcessState.USERABORT);
+    private void changePhaseFromHarvesting(OrchestratedHarvestProcess process) throws Exception {
+        if (process.getExecuteLinkChecker()) {
+            //transition to linkchecker
+            HarvestStartResponse response = linkCheckService.startLinkCheck(process.getHarvesterJobId());
+            process.setLinkCheckJobId(response.getProcessID());
+            process.setState(OrchestratedHarvestProcessState.LINKCHECKING);
             orchestratedHarvestProcessRepo.save(process);
         } else {
-            // nothing to do right now (wait longer)
-            // TODO: reporting
+            //transition to ingest
+            HarvestStartResponse response = ingesterService.startIngest(process.getHarvesterJobId());
+            process.setInjectJobId(response.getProcessID());
+            process.setState(OrchestratedHarvestProcessState.INGESTING);
+            orchestratedHarvestProcessRepo.save(process);
         }
+    }
+
+    private void handle_HAVESTING(OrchestratedHarvestProcess process) throws Exception {
+        if (process.getSkipHarvesting()) {
+            changePhaseFromHarvesting(process);
+
+        } else {
+            HarvestStatus status = harvesterService.getHarvestState(process.getHarvesterJobId());
+            String harvest_state = status.state;
+            if (harvest_state.equals("COMPLETE")) {
+                //process.setState(OrchestratedHarvestProcessState.LINKCHECKING);
+                //orchestratedHarvestProcessRepo.save(process);
+
+                changePhaseFromHarvesting(process);
+
+            } else if (harvest_state.equals("ERROR")) {
+                process.setState(OrchestratedHarvestProcessState.ERROR);
+                orchestratedHarvestProcessRepo.save(process);
+            } else if (harvest_state.equals("USERABORT")) {
+                process.setState(OrchestratedHarvestProcessState.USERABORT);
+                orchestratedHarvestProcessRepo.save(process);
+            } else {
+                // nothing to do right now (wait longer)
+                // TODO: reporting
+            }
+        }
+
         //handle ERROR, USERABORT
         int t=0;
     }

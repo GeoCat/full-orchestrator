@@ -17,6 +17,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -49,15 +50,46 @@ public class EventProcessor_OrchestratedHarvestRequestedEvent extends BaseEventP
     @Override
     public EventProcessor_OrchestratedHarvestRequestedEvent externalProcessing() throws Exception {
         String processID = getInitiatingEvent().getProcessId();
+
+        logger.info(String.format("EventProcessor_OrchestratedHarvestRequestedEvent, processId: %s", processID));
+
         Lock lock = processLockingService.getLock(processID);
         try {
             lock.lock();
+
+            logger.info(String.format("EventProcessor_OrchestratedHarvestRequestedEvent, harvesting config skipHarvesting: %b", getInitiatingEvent().getHarvesterConfig().getSkipHarvesting()));
+
             job = orchestratedHarvestService.createOrchestratedHarvestProcess(processID);
             job.setExecuteLinkChecker(getInitiatingEvent().getHarvesterConfig().getExecuteLinkChecker());
+            job.setSkipHarvesting(getInitiatingEvent().getHarvesterConfig().getSkipHarvesting());
             // Set to null to avoid sending it to the harvester component
             getInitiatingEvent().getHarvesterConfig().setExecuteLinkChecker(null);
-            HarvestStartResponse harvestStartResponse = harvesterService.startHarvest(getInitiatingEvent().getHarvesterConfig());
-            job.setHarvesterJobId(harvestStartResponse.getProcessID());
+            getInitiatingEvent().getHarvesterConfig().setSkipHarvesting(null);
+
+            if (!job.getSkipHarvesting()) {
+                logger.info("EventProcessor_OrchestratedHarvestRequestedEvent, no skip harvesting");
+
+                HarvestStartResponse harvestStartResponse = harvesterService.startHarvest(getInitiatingEvent().getHarvesterConfig());
+                job.setHarvesterJobId(harvestStartResponse.getProcessID());
+
+            } else {
+                logger.info("EventProcessor_OrchestratedHarvestRequestedEvent, skip harvesting");
+
+                // Get the last completed harvest job for the longTermTag
+                String harvestJobId = harvesterService.getLastCompletedHarvestJobIdByLongTermTag(getInitiatingEvent().getHarvesterConfig());
+
+                logger.info(String.format("EventProcessor_OrchestratedHarvestRequestedEvent, skip harvesting, harvestJobId: %s", harvestJobId));
+
+                if (StringUtils.hasLength(harvestJobId)) {
+                    job.setHarvesterJobId(harvestJobId);
+                } else {
+                    // Trigger the harvester as there is no completed harvester job
+                    job.setSkipHarvesting(false);
+
+                    HarvestStartResponse harvestStartResponse = harvesterService.startHarvest(getInitiatingEvent().getHarvesterConfig());
+                    job.setHarvesterJobId(harvestStartResponse.getProcessID());
+                }
+            }
             orchestratedHarvestProcessRepo.save(job);
             job = orchestratedHarvestProcessService.updateLinkCheckJobStateInDB(processID,OrchestratedHarvestProcessState.HAVESTING);
         }

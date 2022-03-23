@@ -29,6 +29,9 @@ public class OrchestratedHarvestProcess {
     @Column
     private Boolean executeLinkChecker;
 
+    @Column
+    private Boolean skipHarvesting;
+
     //---
 
     public String getJobId() {
@@ -77,6 +80,14 @@ public class OrchestratedHarvestProcess {
 
     public void setExecuteLinkChecker(Boolean executeLinkChecker) {
         this.executeLinkChecker = executeLinkChecker;
+    }
+
+    public Boolean getSkipHarvesting() {
+        return skipHarvesting;
+    }
+
+    public void setSkipHarvesting(Boolean skipHarvesting) {
+        this.skipHarvesting = skipHarvesting;
     }
 
     //---

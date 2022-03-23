@@ -46,8 +46,13 @@ public class HarvesterConfig {
     // if false (or null), then DO SORT/
     public Boolean doNotSort;
 
-
+    // If true, executes the link checker process, otherwise skips it.
     public Boolean executeLinkChecker;
+
+    // If true, skips the harvesting process. This flag is used to execute the link checker again
+    // with the harvesting results, setting also executeLinkChecker=true if skipHarvesting=true.
+    public Boolean skipHarvesting;
+
 
     // if numberOfRecordsPerRequest is not specified, use this
     public static int DEFAULT_NRECORDS = 20;
@@ -160,5 +165,17 @@ public class HarvesterConfig {
 
     public void setExecuteLinkChecker(Boolean executeLinkChecker) {
         this.executeLinkChecker = executeLinkChecker;
+    }
+
+    public Boolean getSkipHarvesting() {
+        return skipHarvesting;
+    }
+
+    public void setSkipHarvesting(Boolean skipHarvesting) {
+        this.skipHarvesting = skipHarvesting;
+
+        if ((this.skipHarvesting != null) && (this.skipHarvesting == Boolean.TRUE)) {
+            setExecuteLinkChecker(true);
+        }
     }
 }
