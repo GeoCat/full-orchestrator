@@ -87,7 +87,11 @@ public class OrchestratedHarvestProcess {
     }
 
     public void setSkipHarvesting(Boolean skipHarvesting) {
-        this.skipHarvesting = skipHarvesting;
+        if (skipHarvesting == null) {
+            this.skipHarvesting = Boolean.FALSE;
+        } else {
+            this.skipHarvesting = skipHarvesting;
+        }
     }
 
     //---
