@@ -1,11 +1,9 @@
 FROM maven:3-eclipse-temurin-8 as builder
 
 WORKDIR /sources
-COPY ./pom.xml ./pom.xml
+COPY ./ /sources
 # store maven dependencies so next build doesn't have to download them again
-RUN mvn dependency:go-offline
-
-COPY ./src ./src
+RUN mvn -B dependency:go-offline
 
 RUN mvn -B package -DskipTests
 
@@ -19,7 +17,7 @@ RUN java -Djarmode=layertools -jar full-orchestrator.jar extract
 
 
 
-FROM eclipse-temurin:8-jre
+FROM eclipse-temurin:8-jre as deliverable
 
 LABEL vendor="GeoCat B.V."
 LABEL org.opencontainers.image.source https://github.com/GeoCat/full-orchestrator

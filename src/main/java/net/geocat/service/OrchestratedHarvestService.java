@@ -4,12 +4,18 @@ import net.geocat.database.orchestrator.entities.OrchestratedHarvestProcess;
 import net.geocat.database.orchestrator.entities.OrchestratedHarvestProcessState;
 import net.geocat.database.orchestrator.repos.OrchestratedHarvestProcessRepo;
 import net.geocat.eventprocessor.processors.main.EventProcessor_CheckProcessEvent;
+import net.geocat.model.HarvestStatus;
+import net.geocat.model.IngestStatus;
+import net.geocat.model.LinkCheckStatus;
+import net.geocat.model.OrchestratedHarvestProcessStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 
+import java.util.List;
 import java.util.Optional;
 
 @Component
@@ -39,5 +45,9 @@ public class OrchestratedHarvestService {
         logger.info(String.format("createOrchestratedHarvestProcess, created OrchestratedHarvestProcess processId: %s", processId));
 
         return resultToReturn;
+    }
+
+    public List<OrchestratedHarvestProcess> getOutstandingProcesses()  throws Exception {
+        return orchestratedHarvestProcessRepo.findOutstanding();
     }
 }
