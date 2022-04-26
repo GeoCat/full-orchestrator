@@ -36,6 +36,7 @@ package net.geocat.events;
 import net.geocat.database.orchestrator.entities.OrchestratedHarvestProcess;
 import net.geocat.database.orchestrator.repos.OrchestratedHarvestProcessRepo;
 import net.geocat.model.HarvesterConfig;
+import net.geocat.model.OrchestratorJobConfig;
 import org.apache.camel.Message;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
@@ -66,7 +67,7 @@ public class EventService {
         String guid = createGUID();
         message.getHeaders().put("processID", guid);
         message.getHeaders().put("JMSCorrelationID", guid);
-        ((HarvesterConfig) message.getBody()).setProcessID(guid);
+        ((OrchestratorJobConfig) message.getBody()).setProcessID(guid);
     }
 
 
@@ -76,21 +77,21 @@ public class EventService {
     //     "processID":"5fcd5f22-1a40-4712-8d2d-ca88c2d0d472"
     //}
     public void resultJSON(Message message) {
-        String uuid = ((HarvesterConfig) message.getBody()).getProcessID();
+        String uuid = ((OrchestratorJobConfig) message.getBody()).getProcessID();
         message.setBody("{\n     \"processID\":\"" + uuid + "\"\n}\n");
     }
 
 
     //calls validate on the (parsed) input message
     public void validateHarvesterConfig(Message message) throws Exception {
-        ((HarvesterConfig) message.getBody()).validate();
+        ((OrchestratorJobConfig) message.getBody()).asHarvesterConfig().validate();
     }
 
 
-    public OrchestratedHarvestRequestedEvent createHarvestRequestedEvent(HarvesterConfig harvesterConfig, String processID) {
+    public OrchestratedHarvestRequestedEvent createHarvestRequestedEvent(OrchestratorJobConfig orchestratorJobConfig, String processID) {
 //        Optional<OrchestratedHarvestProcess> harvestJob = orchestratedHarvestProcessRepo.findById(processID);
 
-        OrchestratedHarvestRequestedEvent result = new OrchestratedHarvestRequestedEvent(processID, harvesterConfig);
+        OrchestratedHarvestRequestedEvent result = new OrchestratedHarvestRequestedEvent(processID, orchestratorJobConfig);
         return result;
     }
 

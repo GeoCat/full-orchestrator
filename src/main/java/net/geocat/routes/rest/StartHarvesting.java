@@ -35,6 +35,7 @@ package net.geocat.routes.rest;
 
 import net.geocat.events.EventService;
 import net.geocat.model.HarvesterConfig;
+import net.geocat.model.OrchestratorJobConfig;
 import net.geocat.routes.queuebased.MainOrchestrator;
 import org.apache.camel.BeanScope;
 import org.apache.camel.ExchangePattern;
@@ -67,7 +68,7 @@ public class StartHarvesting extends RouteBuilder {
 
         restConfiguration().component("jetty").host(jettyHost).port(jettyPort);
 
-        JacksonDataFormat jsonDefHarvesterConfig = new JacksonDataFormat(HarvesterConfig.class);
+        JacksonDataFormat jsonDefHarvesterConfig = new JacksonDataFormat(OrchestratorJobConfig.class);
 
         //--- incoming start process request (HTTP)
         rest("/api/startHarvest")

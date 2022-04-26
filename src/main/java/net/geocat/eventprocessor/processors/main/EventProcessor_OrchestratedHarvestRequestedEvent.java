@@ -1,11 +1,11 @@
 package net.geocat.eventprocessor.processors.main;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import net.geocat.database.orchestrator.entities.OrchestratedHarvestProcess;
 import net.geocat.database.orchestrator.entities.OrchestratedHarvestProcessState;
 import net.geocat.database.orchestrator.repos.OrchestratedHarvestProcessRepo;
 import net.geocat.eventprocessor.BaseEventProcessor;
 import net.geocat.events.Event;
-import net.geocat.events.OrchestratedHarvestAbortEvent;
 import net.geocat.events.OrchestratedHarvestRequestedEvent;
 import net.geocat.model.HarvestStartResponse;
 import net.geocat.service.OrchestratedHarvestProcessService;
@@ -45,6 +45,9 @@ public class EventProcessor_OrchestratedHarvestRequestedEvent extends BaseEventP
     @Autowired
     HarvesterService harvesterService;
 
+    ObjectMapper objectMapper = new ObjectMapper();
+
+
     OrchestratedHarvestProcess job;
 
     @Override
@@ -62,6 +65,12 @@ public class EventProcessor_OrchestratedHarvestRequestedEvent extends BaseEventP
             job = orchestratedHarvestService.createOrchestratedHarvestProcess(processID);
             job.setExecuteLinkChecker(getInitiatingEvent().getHarvesterConfig().getExecuteLinkChecker());
             job.setSkipHarvesting(getInitiatingEvent().getHarvesterConfig().getSkipHarvesting());
+
+            job.setLongTermTag(getInitiatingEvent().getHarvesterConfig().getLongTermTag());
+            job.setOrchestratorConfig(getInitiatingEvent().getHarvesterConfig().asJSON());
+            orchestratedHarvestProcessRepo.save(job);
+
+
             // Set to null to avoid sending it to the harvester component
             getInitiatingEvent().getHarvesterConfig().setExecuteLinkChecker(null);
             getInitiatingEvent().getHarvesterConfig().setSkipHarvesting(null);
@@ -69,14 +78,14 @@ public class EventProcessor_OrchestratedHarvestRequestedEvent extends BaseEventP
             if (!job.getSkipHarvesting()) {
                 logger.info("EventProcessor_OrchestratedHarvestRequestedEvent, no skip harvesting");
 
-                HarvestStartResponse harvestStartResponse = harvesterService.startHarvest(getInitiatingEvent().getHarvesterConfig());
+                HarvestStartResponse harvestStartResponse = harvesterService.startHarvest(getInitiatingEvent().getHarvesterConfig().asHarvesterConfig());
                 job.setHarvesterJobId(harvestStartResponse.getProcessID());
 
             } else {
                 logger.info("EventProcessor_OrchestratedHarvestRequestedEvent, skip harvesting");
 
                 // Get the last completed harvest job for the longTermTag
-                String harvestJobId = harvesterService.getLastCompletedHarvestJobIdByLongTermTag(getInitiatingEvent().getHarvesterConfig());
+                String harvestJobId = harvesterService.getLastCompletedHarvestJobIdByLongTermTag(getInitiatingEvent().getHarvesterConfig().asHarvesterConfig());
 
                 logger.info(String.format("EventProcessor_OrchestratedHarvestRequestedEvent, skip harvesting, harvestJobId: %s", harvestJobId));
 
@@ -86,7 +95,7 @@ public class EventProcessor_OrchestratedHarvestRequestedEvent extends BaseEventP
                     // Trigger the harvester as there is no completed harvester job
                     job.setSkipHarvesting(false);
 
-                    HarvestStartResponse harvestStartResponse = harvesterService.startHarvest(getInitiatingEvent().getHarvesterConfig());
+                    HarvestStartResponse harvestStartResponse = harvesterService.startHarvest(getInitiatingEvent().getHarvesterConfig().asHarvesterConfig());
                     job.setHarvesterJobId(harvestStartResponse.getProcessID());
                 }
             }

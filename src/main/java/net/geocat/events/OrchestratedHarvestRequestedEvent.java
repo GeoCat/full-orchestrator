@@ -34,25 +34,26 @@
 package net.geocat.events;
 
 import net.geocat.model.HarvesterConfig;
+import net.geocat.model.OrchestratorJobConfig;
 
 public class OrchestratedHarvestRequestedEvent extends Event {
 
-    private HarvesterConfig harvesterConfig;
+    private OrchestratorJobConfig harvesterConfig;
     private String processId;
 
     public OrchestratedHarvestRequestedEvent() {
     }
 
-    public OrchestratedHarvestRequestedEvent(String processId, HarvesterConfig harvesterConfig) {
+    public OrchestratedHarvestRequestedEvent(String processId, OrchestratorJobConfig harvesterConfig) {
         this.processId = processId;
         this.harvesterConfig = harvesterConfig;
     }
 
-    public HarvesterConfig getHarvesterConfig() {
+    public OrchestratorJobConfig getHarvesterConfig() {
         return harvesterConfig;
     }
 
-    public void setHarvesterConfig(HarvesterConfig harvesterConfig) {
+    public void setHarvesterConfig(OrchestratorJobConfig harvesterConfig) {
         this.harvesterConfig = harvesterConfig;
     }
 

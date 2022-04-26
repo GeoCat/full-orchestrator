@@ -1,7 +1,11 @@
 package net.geocat.service.exernalservices;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import net.geocat.database.linkchecker.entities.helper.HttpResult;
+import net.geocat.database.orchestrator.entities.OrchestratedHarvestProcess;
+import net.geocat.database.orchestrator.repos.OrchestratedHarvestProcessRepo;
 import net.geocat.http.BasicHTTPRetriever;
 import net.geocat.model.*;
 import org.slf4j.Logger;
@@ -21,18 +25,29 @@ public class LinkCheckService {
     @Autowired
     BasicHTTPRetriever basicHTTPRetriever;
 
+    @Autowired
+    OrchestratedHarvestProcessRepo orchestratedHarvestProcessRepo;
+
     ObjectMapper objectMapper = new ObjectMapper();
 
     @Value("${linkchecker.url}")
     String linkcheckerAPIURL;
 
 
+
+    public LinkCheckRunConfig asLinkCheckRunConfig(String json) throws JsonProcessingException {
+        ObjectMapper objectMapper = new ObjectMapper()  .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+        LinkCheckRunConfig   result = objectMapper.readValue(json, LinkCheckRunConfig.class);
+        return result;
+    }
     // call the harvest remote service and return the processID
-    public HarvestStartResponse startLinkCheck(String harvesterId) throws  Exception {
+    public HarvestStartResponse startLinkCheck(OrchestratedHarvestProcess process) throws  Exception {
+
+
 
         String url = linkcheckerAPIURL+"/startLinkCheck";
-        LinkCheckRunConfig linkCheckRunConfig = new LinkCheckRunConfig();
-        linkCheckRunConfig.setHarvestJobId(harvesterId);
+        LinkCheckRunConfig linkCheckRunConfig = asLinkCheckRunConfig(process.getOrchestratorConfig());
+        linkCheckRunConfig.setHarvestJobId(process.getHarvesterJobId());
         String requestJSON = objectMapper.writeValueAsString(linkCheckRunConfig);
 
         HttpResult httpResponse = sendJSON("POST",url, requestJSON);

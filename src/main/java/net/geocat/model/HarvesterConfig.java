@@ -29,7 +29,7 @@ public class HarvesterConfig {
 
     // how many records to retrieve in a single GetRecords request
     // defaults to 20 records in a GetRecords request (see DEFAULT_NRECORDS)
-    private int numberOfRecordsPerRequest;
+    private Integer numberOfRecordsPerRequest;
 
 
     // which queue set to use.  blank=auto determined.  Otherwise "PARALLEL#" #=2,3,4
@@ -57,6 +57,18 @@ public class HarvesterConfig {
     // if numberOfRecordsPerRequest is not specified, use this
     public static int DEFAULT_NRECORDS = 20;
 
+    Integer storeAtMostNHistoricalRuns;
+
+    //---
+
+
+    public Integer getStoreAtMostNHistoricalRuns() {
+        return storeAtMostNHistoricalRuns;
+    }
+
+    public void setStoreAtMostNHistoricalRuns(Integer storeAtMostNHistoricalRuns) {
+        this.storeAtMostNHistoricalRuns = storeAtMostNHistoricalRuns;
+    }
 
     public Boolean getDoNotSort() {
         return doNotSort;
@@ -139,11 +151,13 @@ public class HarvesterConfig {
             problematicResultsConfiguration = new ProblematicResultsConfiguration();
         problematicResultsConfiguration.validate();
 
-        if (numberOfRecordsPerRequest <= 0)
-            numberOfRecordsPerRequest = DEFAULT_NRECORDS;
+        if (numberOfRecordsPerRequest != null) {
+            if (numberOfRecordsPerRequest <= 0)
+                numberOfRecordsPerRequest = DEFAULT_NRECORDS;
 
-        if (numberOfRecordsPerRequest > 500) // unreasonable
-            numberOfRecordsPerRequest = 500;
+            if (numberOfRecordsPerRequest > 500) // unreasonable
+                numberOfRecordsPerRequest = 500;
+        }
     }
 
     @Override
@@ -151,7 +165,7 @@ public class HarvesterConfig {
         return "{processID=" + processID + ", urls=" + url + "}";
     }
 
-    public int getNumberOfRecordsPerRequest() {
+    public Integer getNumberOfRecordsPerRequest() {
         return numberOfRecordsPerRequest;
     }
 

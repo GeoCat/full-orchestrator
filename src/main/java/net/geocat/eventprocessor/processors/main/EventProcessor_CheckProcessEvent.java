@@ -148,7 +148,7 @@ public class EventProcessor_CheckProcessEvent extends BaseEventProcessor<CheckPr
     private void changePhaseFromHarvesting(OrchestratedHarvestProcess process) throws Exception {
         if (process.getExecuteLinkChecker()) {
             //transition to linkchecker
-            HarvestStartResponse response = linkCheckService.startLinkCheck(process.getHarvesterJobId());
+            HarvestStartResponse response = linkCheckService.startLinkCheck(process );
             process.setLinkCheckJobId(response.getProcessID());
             process.setState(OrchestratedHarvestProcessState.LINKCHECKING);
             orchestratedHarvestProcessRepo.save(process);

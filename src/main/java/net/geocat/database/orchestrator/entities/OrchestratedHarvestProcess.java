@@ -12,6 +12,12 @@ public class OrchestratedHarvestProcess {
     private String jobId;
 
 
+    @Column(columnDefinition = "text")
+    private String orchestratorConfig;
+
+    @Column(columnDefinition = "text")
+    private String longTermTag;
+
     @Column(columnDefinition = "varchar(40)")
     private String harvesterJobId;
 
@@ -33,6 +39,23 @@ public class OrchestratedHarvestProcess {
     private Boolean skipHarvesting;
 
     //---
+
+
+    public String getOrchestratorConfig() {
+        return orchestratorConfig;
+    }
+
+    public void setOrchestratorConfig(String harvesterConfig) {
+        this.orchestratorConfig = harvesterConfig;
+    }
+
+    public String getLongTermTag() {
+        return longTermTag;
+    }
+
+    public void setLongTermTag(String longTermTag) {
+        this.longTermTag = longTermTag;
+    }
 
     public String getJobId() {
         return jobId;
@@ -75,6 +98,8 @@ public class OrchestratedHarvestProcess {
     }
 
     public Boolean getExecuteLinkChecker() {
+        if (executeLinkChecker == null)
+            return true; // default
         return executeLinkChecker;
     }
 
@@ -83,6 +108,8 @@ public class OrchestratedHarvestProcess {
     }
 
     public Boolean getSkipHarvesting() {
+        if (skipHarvesting == null)
+            return false; // default
         return skipHarvesting;
     }
 
