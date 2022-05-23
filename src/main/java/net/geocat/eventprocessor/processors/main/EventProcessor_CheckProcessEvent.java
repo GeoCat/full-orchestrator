@@ -100,7 +100,7 @@ public class EventProcessor_CheckProcessEvent extends BaseEventProcessor<CheckPr
         IngestStatus ingestState = ingesterService.getIngestState(process.getInjectJobId());
         String ingester_state = ingestState.getState();
 
-        if (ingester_state.equals("RECORDS_PROCESSED")) {
+        if (ingester_state.equals("COMPLETE")) {
             //transition to end of orchestrator
             //throw new Exception("dont know how to run injester");
             process.setState(OrchestratedHarvestProcessState.COMPLETE);
