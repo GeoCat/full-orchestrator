@@ -34,6 +34,11 @@ public class LinkCheckService {
     String linkcheckerAPIURL;
 
 
+    public String abortLinkCheck(String linkcheckProcessID) throws Exception {
+        String url = linkcheckerAPIURL+"/abort/"+linkcheckProcessID;
+        HttpResult httpResponse = sendJSON("GET",url, null);
+        return new String(httpResponse.getData());
+    }
 
     public LinkCheckRunConfig asLinkCheckRunConfig(String json) throws JsonProcessingException {
         ObjectMapper objectMapper = new ObjectMapper()  .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);

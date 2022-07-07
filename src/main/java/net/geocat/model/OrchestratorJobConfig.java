@@ -36,6 +36,16 @@ public class OrchestratorJobConfig {
 
     //--
 
+    @Override
+    public String toString() {
+        try {
+            return asJSON();
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+            return "--- couldnt create JSON --- ";
+        }
+    }
+
     public String asJSON() throws JsonProcessingException {
         ObjectMapper mapper = new ObjectMapper();
         return mapper.writeValueAsString(this);

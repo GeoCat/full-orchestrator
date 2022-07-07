@@ -39,13 +39,13 @@ import net.geocat.model.OrchestratorJobConfig;
 public class OrchestratedHarvestRequestedEvent extends Event {
 
     private OrchestratorJobConfig harvesterConfig;
-    private String processId;
+
 
     public OrchestratedHarvestRequestedEvent() {
     }
 
     public OrchestratedHarvestRequestedEvent(String processId, OrchestratorJobConfig harvesterConfig) {
-        this.processId = processId;
+        super(processId);
         this.harvesterConfig = harvesterConfig;
     }
 
@@ -57,19 +57,13 @@ public class OrchestratedHarvestRequestedEvent extends Event {
         this.harvesterConfig = harvesterConfig;
     }
 
-    public String getProcessId() {
-        return processId;
-    }
 
-    public void setProcessId(String processId) {
-        this.processId = processId;
-    }
 
     @Override
     public String toString() {
         return "OrchestratedHarvestRequestedEvent{" +
                 "harvesterConfig=" + harvesterConfig +
-                ", processId='" + processId + '\'' +
+                ", processId='" + getProcessID() + '\'' +
                 '}';
     }
 }

@@ -28,6 +28,14 @@ public class IngesterService {
     @Value("${ingester.url}")
     String ingesterAPIURL;
 
+
+    public String abortIngest(String ingestProcessID) throws Exception {
+        String url = ingesterAPIURL+"/abort/"+ingestProcessID;
+        HttpResult httpResponse = sendJSON("GET",url, null);
+        return new String(httpResponse.getData());
+    }
+
+
     // call the harvest remote service and return the processID
     public HarvestStartResponse startIngest(String harvesterId) throws  Exception {
 

@@ -34,8 +34,10 @@
 package net.geocat.routes.queuebased;
 
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import net.geocat.eventprocessor.MainLoopRouteCreator;
 import net.geocat.events.CheckProcessEvent;
+import net.geocat.events.Event;
 import net.geocat.events.OrchestratedHarvestAbortEvent;
 
 import net.geocat.events.OrchestratedHarvestRequestedEvent;
@@ -85,6 +87,16 @@ public class MainOrchestrator extends SpringRouteBuilder {
                 .to("activemq:ActiveMQ.DLQ_DLQ")
                 .end()
 
+                .process(new Processor() {
+                    @Override
+                    public void process(Exchange exchange) throws Exception {
+                        String json = new String((byte[])exchange.getMessage().getBody());
+                        ObjectMapper mapper = new ObjectMapper();
+                        Event event = mapper.readValue(json, Event.class);
+                        exchange.getMessage().setHeader("processID", event.getProcessID());
+                        int t=0;
+                    }
+                })
                 .bean(OrchestratedHarvestProcessService.class, "updateLinkCheckJobStateInDBToError( ${header.processID} )", BeanScope.Request)
         ;
     }

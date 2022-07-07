@@ -52,7 +52,7 @@ public class EventProcessor_OrchestratedHarvestRequestedEvent extends BaseEventP
 
     @Override
     public EventProcessor_OrchestratedHarvestRequestedEvent externalProcessing() throws Exception {
-        String processID = getInitiatingEvent().getProcessId();
+        String processID = getInitiatingEvent().getProcessID();
 
         logger.info(String.format("EventProcessor_OrchestratedHarvestRequestedEvent, processId: %s", processID));
 

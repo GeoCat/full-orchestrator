@@ -36,27 +36,20 @@ package net.geocat.events;
 
 public class OrchestratedHarvestAbortEvent extends Event {
 
-    public String processID;
+
 
     public OrchestratedHarvestAbortEvent() {
     }
 
     public OrchestratedHarvestAbortEvent(String processID) {
-        this.processID = processID;
+        super(processID);
     }
 
 
-    public String getProcessID() {
-        return processID;
-    }
-
-    public void setProcessID(String processID) {
-        this.processID = processID;
-    }
 
     @Override
     public String toString() {
-        return "OrchestratedHarvestAbortEvent for processID=" + processID;
+        return "OrchestratedHarvestAbortEvent for processID=" + getProcessID();
     }
 
 }

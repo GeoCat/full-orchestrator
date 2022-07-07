@@ -34,6 +34,13 @@ public class HarvesterService {
     @Value("${harvester.url}")
     String harvesterAPIURL;
 
+
+    public String abortHarvest(String harvesterProcessID) throws Exception {
+        String url = harvesterAPIURL+"/abortharvest/"+harvesterProcessID;
+        HttpResult httpResponse = sendJSON("GET",url, null);
+        return new String(httpResponse.getData());
+    }
+
     // call the harvest remote service and return the processID
     public HarvestStartResponse startHarvest(HarvesterConfig harvestConfig) throws  Exception {
 

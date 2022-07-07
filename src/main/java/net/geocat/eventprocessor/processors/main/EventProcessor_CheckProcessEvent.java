@@ -62,7 +62,7 @@ public class EventProcessor_CheckProcessEvent extends BaseEventProcessor<CheckPr
 
     @Override
     public EventProcessor_CheckProcessEvent internalProcessing() throws Exception {
-        String processID = getInitiatingEvent().getOrchestratorProcessId();
+        String processID = getInitiatingEvent().getProcessID();
         Lock lock = processLockingService.getLock(processID);
         try {
             lock.lock();

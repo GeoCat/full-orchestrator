@@ -38,4 +38,24 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "@class")
 public class Event {
 
+    String processID;
+
+    public Event() {
+
+    }
+
+    public Event(String processID) {
+        this.processID = processID;
+    }
+
+    //----
+
+
+    public String getProcessID() {
+        return processID;
+    }
+
+    public void setProcessID(String processID) {
+        this.processID = processID;
+    }
 }
