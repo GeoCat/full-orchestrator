@@ -59,7 +59,7 @@ public class HarvesterService {
     }
 
     public HarvestStatus getHarvestState(String harvesterProcessID) throws Exception {
-        String url = harvesterAPIURL+"/getstatus/"+harvesterProcessID;
+        String url = harvesterAPIURL+"/getstatus/"+harvesterProcessID+"?quick=true";
         HttpResult httpResponse = sendJSON("GET",url,null);
         String result = httpResponse.getData() == null ? "" : new String(httpResponse.getData());
         if (httpResponse.isErrorOccurred() || (httpResponse.getHttpCode() != 200))

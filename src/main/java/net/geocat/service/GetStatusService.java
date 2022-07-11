@@ -40,6 +40,7 @@ import net.geocat.database.orchestrator.entities.OrchestratedHarvestProcessState
 import net.geocat.database.orchestrator.repos.LogbackLoggingEventExceptionRepo;
 import net.geocat.database.orchestrator.repos.LogbackLoggingEventRepo;
 import net.geocat.database.orchestrator.repos.OrchestratedHarvestProcessRepo;
+import net.geocat.eventprocessor.processors.main.EventProcessor_OrchestratedHarvestAbortEvent;
 import net.geocat.model.HarvestStatus;
 import net.geocat.model.IngestStatus;
 import net.geocat.model.LinkCheckStatus;
@@ -47,6 +48,8 @@ import net.geocat.model.OrchestratedHarvestProcessStatus;
 import net.geocat.service.exernalservices.HarvesterService;
 import net.geocat.service.exernalservices.IngesterService;
 import net.geocat.service.exernalservices.LinkCheckService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
@@ -61,7 +64,12 @@ import java.util.stream.Collectors;
 @Component
 @Scope("prototype")
 public class GetStatusService {
+
     public static Boolean DEFAULT_QUICK = Boolean.FALSE;
+
+    Logger logger = LoggerFactory.getLogger( GetStatusService.class);
+
+
 
     @Autowired
     LogbackLoggingEventRepo logbackLoggingEventRepo;
@@ -82,6 +90,9 @@ public class GetStatusService {
     IngesterService ingesterService;
 
     public OrchestratedHarvestProcessStatus getStatus(String processID, Boolean quick)  throws Exception {
+
+        logger.debug("getstatus called for "+processID+", with quick="+quick);
+
         if (quick == null)
             quick = DEFAULT_QUICK;
 

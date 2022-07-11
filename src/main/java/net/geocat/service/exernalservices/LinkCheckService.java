@@ -67,7 +67,7 @@ public class LinkCheckService {
     }
 
     public LinkCheckStatus getLinkCheckState(String linkCheckProcessID) throws Exception {
-        String url = linkcheckerAPIURL+"/getstatus/"+linkCheckProcessID;
+        String url = linkcheckerAPIURL+"/getstatus/"+linkCheckProcessID+"?quick=true";
         HttpResult httpResponse = sendJSON("GET",url,null);
         String result = httpResponse.getData() == null ? "" : new String(httpResponse.getData());
         if (httpResponse.isErrorOccurred() || (httpResponse.getHttpCode() != 200))

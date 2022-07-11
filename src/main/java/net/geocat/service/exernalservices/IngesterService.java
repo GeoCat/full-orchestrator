@@ -56,7 +56,7 @@ public class IngesterService {
     }
 
     public IngestStatus getIngestState(String ingesterProcessID) throws Exception {
-        String url = ingesterAPIURL+"/getstatus/"+ingesterProcessID;
+        String url = ingesterAPIURL+"/getstatus/"+ingesterProcessID+"?quick=true";
         HttpResult httpResponse = sendJSON("GET",url,null);
         String result = httpResponse.getData() == null ? "" : new String(httpResponse.getData());
         if (httpResponse.isErrorOccurred() || (httpResponse.getHttpCode() != 200))
