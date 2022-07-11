@@ -61,7 +61,7 @@ public class GetStatus extends RouteBuilder  {
                 .get("/{processID}")
                 .route()
                 .routeId("rest.rest.getstatus")
-                .bean(GetStatusService.class, "getStatus( ${header.processID} )", BeanScope.Request)
+                .bean(GetStatusService.class, "getStatus( ${header.processID} , ${header.quick})", BeanScope.Request)
 
                 .setHeader("content-type", constant("application/json"))
                 .marshal().json()

@@ -61,6 +61,7 @@ import java.util.stream.Collectors;
 @Component
 @Scope("prototype")
 public class GetStatusService {
+    public static Boolean DEFAULT_QUICK = Boolean.FALSE;
 
     @Autowired
     LogbackLoggingEventRepo logbackLoggingEventRepo;
@@ -80,7 +81,10 @@ public class GetStatusService {
     @Autowired
     IngesterService ingesterService;
 
-    public OrchestratedHarvestProcessStatus getStatus(String processID)  throws Exception {
+    public OrchestratedHarvestProcessStatus getStatus(String processID, Boolean quick)  throws Exception {
+        if (quick == null)
+            quick = DEFAULT_QUICK;
+
         Optional<OrchestratedHarvestProcess> jobOptional = orchestratedHarvestProcessRepo.findById(processID);
 
         if (jobOptional.isPresent()) {
@@ -88,23 +92,25 @@ public class GetStatusService {
 
             OrchestratedHarvestProcessStatus result = new OrchestratedHarvestProcessStatus(processID, job.getState());
 
-            if (!StringUtils.isEmpty(job.getHarvesterJobId())) {
-                HarvestStatus harvestState = harvesterService.getHarvestState(job.getHarvesterJobId());
-                result.setHarvestStatus(harvestState);
+            if (!quick) {
+                if (!StringUtils.isEmpty(job.getHarvesterJobId())) {
+                    HarvestStatus harvestState = harvesterService.getHarvestState(job.getHarvesterJobId());
+                    result.setHarvestStatus(harvestState);
+                }
+
+                if (!StringUtils.isEmpty(job.getLinkCheckJobId())) {
+                    LinkCheckStatus linkCheckState = linkCheckService.getLinkCheckState(job.getLinkCheckJobId());
+                    result.setLinkCheckStatus(linkCheckState);
+                }
+
+                if (!StringUtils.isEmpty(job.getInjectJobId())) {
+                    IngestStatus ingestState = ingesterService.getIngestState(job.getInjectJobId());
+                    result.setIngestStatus(ingestState);
+
+                }
+
+                setupErrorMessages(result);
             }
-
-            if (!StringUtils.isEmpty(job.getLinkCheckJobId())) {
-                LinkCheckStatus linkCheckState = linkCheckService.getLinkCheckState(job.getLinkCheckJobId());
-                result.setLinkCheckStatus(linkCheckState);
-            }
-
-            if (!StringUtils.isEmpty(job.getInjectJobId())) {
-                IngestStatus ingestState = ingesterService.getIngestState(job.getInjectJobId());
-                result.setIngestStatus(ingestState);
-
-            }
-
-            setupErrorMessages(result);
             return result;
         } else {
             OrchestratedHarvestProcessStatus result = new OrchestratedHarvestProcessStatus(processID, null);
