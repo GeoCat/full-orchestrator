@@ -93,8 +93,9 @@ public class GetStatusService {
 
         logger.debug("getstatus called for "+processID+", with quick="+quick);
 
-        if (quick == null)
+        if (quick == null) {
             quick = DEFAULT_QUICK;
+        }
 
         Optional<OrchestratedHarvestProcess> jobOptional = orchestratedHarvestProcessRepo.findById(processID);
 
@@ -105,17 +106,17 @@ public class GetStatusService {
 
             if (!quick) {
                 if (!StringUtils.isEmpty(job.getHarvesterJobId())) {
-                    HarvestStatus harvestState = harvesterService.getHarvestState(job.getHarvesterJobId());
+                    HarvestStatus harvestState = harvesterService.getHarvestState(job.getHarvesterJobId(), quick);
                     result.setHarvestStatus(harvestState);
                 }
 
                 if (!StringUtils.isEmpty(job.getLinkCheckJobId())) {
-                    LinkCheckStatus linkCheckState = linkCheckService.getLinkCheckState(job.getLinkCheckJobId());
+                    LinkCheckStatus linkCheckState = linkCheckService.getLinkCheckState(job.getLinkCheckJobId(), quick);
                     result.setLinkCheckStatus(linkCheckState);
                 }
 
                 if (!StringUtils.isEmpty(job.getInjectJobId())) {
-                    IngestStatus ingestState = ingesterService.getIngestState(job.getInjectJobId());
+                    IngestStatus ingestState = ingesterService.getIngestState(job.getInjectJobId(), quick);
                     result.setIngestStatus(ingestState);
 
                 }

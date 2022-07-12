@@ -97,7 +97,7 @@ public class EventProcessor_CheckProcessEvent extends BaseEventProcessor<CheckPr
     }
 
     private void handle_INGESTING(OrchestratedHarvestProcess process) throws Exception {
-        IngestStatus ingestState = ingesterService.getIngestState(process.getInjectJobId());
+        IngestStatus ingestState = ingesterService.getIngestState(process.getInjectJobId(), true);
         String ingester_state = ingestState.getState();
 
         if (ingester_state.equals("COMPLETE")) {
@@ -123,7 +123,7 @@ public class EventProcessor_CheckProcessEvent extends BaseEventProcessor<CheckPr
             return;
         }
 
-        LinkCheckStatus linkCheckState = linkCheckService.getLinkCheckState(process.getLinkCheckJobId());
+        LinkCheckStatus linkCheckState = linkCheckService.getLinkCheckState(process.getLinkCheckJobId(), true);
         String linkcheck_state = linkCheckState.getLinkCheckJobState();
 
         if (linkcheck_state.equals("COMPLETE")) {
@@ -166,7 +166,7 @@ public class EventProcessor_CheckProcessEvent extends BaseEventProcessor<CheckPr
             changePhaseFromHarvesting(process);
 
         } else {
-            HarvestStatus status = harvesterService.getHarvestState(process.getHarvesterJobId());
+            HarvestStatus status = harvesterService.getHarvestState(process.getHarvesterJobId(), true);
             String harvest_state = status.state;
             if (harvest_state.equals("COMPLETE")) {
                 //process.setState(OrchestratedHarvestProcessState.LINKCHECKING);
