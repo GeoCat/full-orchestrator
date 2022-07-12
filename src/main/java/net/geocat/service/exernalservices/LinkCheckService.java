@@ -71,7 +71,7 @@ public class LinkCheckService {
         HttpResult httpResponse = sendJSON("GET",url,null);
         String result = httpResponse.getData() == null ? "" : new String(httpResponse.getData());
         if (httpResponse.isErrorOccurred() || (httpResponse.getHttpCode() != 200))
-            throw new Exception("couldnt get harvest process state - "+result);
+            throw new Exception("couldnt get linkcheck process state for linkCheckProcessID"+linkCheckProcessID+" - "+result);
 
         LinkCheckStatus _result  =  objectMapper.readValue(result, LinkCheckStatus.class);
         logger.debug("linkcheck state="+computeLinkCheckState(_result));

@@ -63,7 +63,7 @@ public class HarvesterService {
         HttpResult httpResponse = sendJSON("GET",url,null);
         String result = httpResponse.getData() == null ? "" : new String(httpResponse.getData());
         if (httpResponse.isErrorOccurred() || (httpResponse.getHttpCode() != 200))
-            throw new Exception("couldnt get harvest process state - "+result);
+            throw new Exception("couldnt get harvest process state for harvesterProcessID="+harvesterProcessID+" - "+result);
 
         HarvestStatus _result  =  objectMapper.readValue(result, HarvestStatus.class);
         logger.debug("harvest state="+computeHarvestState(_result));
