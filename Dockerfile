@@ -24,7 +24,7 @@ RUN --mount=type=cache,target=/root/.m2/repository \
 FROM eclipse-temurin:8-jre
 
 LABEL vendor="GeoCat B.V."
-LABEL org.opencontainers.image.source https://github.com/GeoCat/full-orchestrator
+LABEL org.opencontainers.image.source="https://github.com/GeoCat/full-orchestrator"
 
 
 
